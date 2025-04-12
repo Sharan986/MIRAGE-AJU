@@ -17,7 +17,7 @@ const RecordUploader = () => {
     formData.append('report', file);
 
     try {
-      const res = await axios.post(`/api/records/upload-to-record/${recordId}`, formData, {
+      const res = await axios.post(`http://localhost:5000/api/records/upload-to-record/${recordId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -36,7 +36,7 @@ const RecordUploader = () => {
   const handleDownload = () => {
     if (!uploadedFile) return;
     const link = document.createElement('a');
-    link.href = `/${uploadedFile}`;
+    link.href = `http://localhost:5000/${uploadedFile}`;
     link.download = uploadedFile.split('/').pop();
     link.click();
   };

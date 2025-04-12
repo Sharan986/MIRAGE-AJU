@@ -13,6 +13,9 @@ import Signup from './Pages/Signup.jsx';
 import VideoConsultation from './VideoConsultation.jsx'; // use .jsx now
 import Record from './Pages/Record.jsx';
 import Medicine from './Pages/Medicine.jsx';
+import RecordUploader from './Pages/RecordUploader';
+import PrescriptionManager from './Pages/PrescriptionManager';
+
 const AppContent = () => {
   const location = useLocation();
   const hideOnRoutes = ['/login', '/signup'];
@@ -33,6 +36,14 @@ const AppContent = () => {
               <Home />
               <Home2 />
               {!shouldHideFooter && <Bottom />}
+
+              <div className="min-h-screen bg-gray-100 p-6">
+  <RecordUploader />
+</div>
+
+<div className="bg-gray-100 min-h-screen">
+      <PrescriptionManager />
+    </div>
             </>
           }
         />

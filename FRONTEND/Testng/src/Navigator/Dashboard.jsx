@@ -1,245 +1,229 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 
-const HealthDashboard = () => {
+// Mock static patient data
+const staticPatients = [
+  {
+    _id: '1',
+    name: 'John Doe',
+    age: 34,
+    gender: 'Male',
+    disease: 'Diabetes',
+    doctor: 'Dr. Strange',
+    report: null,
+  },
+  {
+    _id: '2',
+    name: 'Alice Smith',
+    age: 28,
+    gender: 'Female',
+    disease: 'Asthma',
+    doctor: 'Dr. House',
+    report: null,
+  },
+  {
+    _id: '3',
+    name: 'Robert Johnson',
+    age: 45,
+    gender: 'Male',
+    disease: 'Hypertension',
+    doctor: 'Dr. Adams',
+    report: null,
+  },
+  {
+    _id: '4',
+    name: 'Emily Brown',
+    age: 31,
+    gender: 'Female',
+    disease: 'Arthritis',
+    doctor: 'Dr. Bailey',
+    report: null,
+  },
+  {
+    _id: '5',
+    name: 'Michael White',
+    age: 52,
+    gender: 'Other',
+    disease: 'Heart Disease',
+    doctor: 'Dr. Grey',
+    report: null,
+  },
+];
+
+const PatientManager = () => {
+  const [patients, setPatients] = useState([]);
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    gender: 'Male',
+    disease: '',
+    doctor: '',
+    report: null,
+  });
+  const [editId, setEditId] = useState(null);
+
+  useEffect(() => {
+    setPatients(staticPatients);
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'report') {
+      setFormData((prev) => ({ ...prev, report: files[0] }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.age || !formData.disease || !formData.doctor) return;
+
+    const patientData = {
+      ...formData,
+      age: Number(formData.age),
+      _id: editId || Date.now().toString(),
+    };
+
+    if (editId) {
+      setPatients((prev) =>
+        prev.map((p) => (p._id === editId ? patientData : p))
+      );
+      setEditId(null);
+    } else {
+      setPatients((prev) => [...prev, patientData]);
+    }
+
+    // Reset form
+    setFormData({
+      name: '',
+      age: '',
+      gender: 'Male',
+      disease: '',
+      doctor: '',
+      report: null,
+    });
+  };
+
+  const handleEdit = (patient) => {
+    setFormData({
+      name: patient.name,
+      age: patient.age,
+      gender: patient.gender,
+      disease: patient.disease,
+      doctor: patient.doctor,
+      report: patient.report,
+    });
+    setEditId(patient._id);
+  };
+
+  const handleDelete = (id) => {
+    setPatients((prev) => prev.filter((p) => p._id !== id));
+  };
+
   return (
-    <div className="flex bg-gray-50 min-h-screen font-sans">
-      {/* Sidebar */}
-      <div className="w-64 bg-white p-6 border-r shadow-sm pt-7">
-        <h2 className="text-2xl font-bold text-purple-600 mb-10">🫀 SwasthyaSetu</h2>
-        <nav className="flex flex-col  gap-16 text-gray-700 font-medium">
-          <a href="#" className="flex items-center gap-3 text-purple-600 bg-purple-50 p-2 rounded-md">
-            📊 Dashboard
-          </a>
-          <a href="#" className="flex items-center gap-3 hover:text-purple-600">
-            📅 My Appointments
-          </a>
-          <a href="#" className="flex items-center gap-3 hover:text-purple-600">
-            🧑‍⚕️ My Doctors
-          </a>
-          <a href="#" className="flex items-center gap-3 hover:text-purple-600">
-            📖 Medical History
-          </a>
-          <a href="#" className="flex items-center gap-3 hover:text-purple-600">
-            💊 Prescriptions
-          </a>
-          <a href="#" className="flex items-center gap-3 hover:text-purple-600">
-            🧪 Test Reports
-          </a>
-        </nav>
-      </div>
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg mt-10">
+      <h2 className="text-2xl font-bold text-center mb-4">Patient Manager</h2>
 
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">Welcome back, Sarah</h1>
-            <p className="text-gray-600">Monitor your health activities</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xl">🔔</span>
-            <img
-              src="https://randomuser.me/api/portraits/women/44.jpg"
-              alt="Sarah"
-              className="w-10 h-10 rounded-full"
-            />
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <input
+          type="text"
+          name="name"
+          placeholder="Patient name"
+          value={formData.name}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+        <input
+          type="number"
+          name="age"
+          placeholder="Age"
+          value={formData.age}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+        <select
+          name="gender"
+          value={formData.gender}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+        >
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+        <input
+          type="text"
+          name="disease"
+          placeholder="Disease"
+          value={formData.disease}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+        <input
+          type="text"
+          name="doctor"
+          placeholder="Consulted With (Doctor)"
+          value={formData.doctor}
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+          required
+        />
+        <input
+          type="file"
+          name="report"
+          accept=".pdf"
+          onChange={handleChange}
+          className="border px-3 py-2 rounded"
+        />
+        <button
+          type="submit"
+          className="col-span-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          {editId ? 'Update Patient' : 'Add Patient'}
+        </button>
+      </form>
 
-        {/* Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <p className="text-sm text-gray-500 flex items-center gap-1">
-              Next Appointment 📅
+      <ul className="space-y-4">
+        {patients.map((patient) => (
+          <li
+            key={patient._id}
+            className="bg-gray-100 p-4 rounded shadow-sm flex flex-col gap-1"
+          >
+            <div className="flex justify-between">
+              <span className="font-semibold text-lg">{patient.name}</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(patient)}
+                  className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(patient._id)}
+                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700">
+              Age: {patient.age} | Gender: {patient.gender} | Disease: {patient.disease}
             </p>
-            <h3 className="text-xl font-bold">Today</h3>
-            <p className="text-purple-600 font-medium">2:30 PM</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <p className="text-sm text-gray-500 flex items-center gap-1">
-              Medications 💊
-            </p>
-            <h3 className="text-xl font-bold">3</h3>
-            <p className="text-gray-500">Due today</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <p className="text-sm text-gray-500 flex items-center gap-1">
-              Test Results 🧪
-            </p>
-            <h3 className="text-xl font-bold">2</h3>
-            <p className="text-purple-600 font-medium">New reports</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <p className="text-sm text-gray-500 flex items-center gap-1">
-              Health Score 🩺
-            </p>
-            <h3 className="text-xl font-bold">85%</h3>
-            <p className="text-green-600 font-medium">↑ Good</p>
-          </div>
-        </div>
-
-        {/* Bottom Cards */}
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Upcoming Appointments */}
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-lg">Upcoming Appointments</h2>
-              <a href="#" className="text-purple-600 text-sm">View All</a>
-            </div>
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg mb-2">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://randomuser.me/api/portraits/men/32.jpg"
-                  alt="Dr. John"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">Dr. John Smith</p>
-                  <p className="text-sm text-gray-500">General Checkup</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">Today, 2:30 PM</p>
-                <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded-md text-xs">Get In Touch</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://randomuser.me/api/portraits/men/41.jpg"
-                  alt="Dr. Robert"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">Dr. Robert Wilson</p>
-                  <p className="text-sm text-gray-500">Follow-up</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">Tomorrow, 11:00 AM</p>
-                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs">In Person</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Today's Medications */}
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-lg">Today's Medications</h2>
-              <a href="#" className="text-purple-600 text-sm">View All</a>
-            </div>
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg mb-2">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💊</span>
-                <div>
-                  <p className="font-semibold">Amoxicillin</p>
-                  <p className="text-sm text-gray-500">500mg - 1 tablet</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">After Breakfast</p>
-                <p className="text-gray-500">8:00 AM</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💊</span>
-                <div>
-                  <p className="font-semibold">Vitamin D3</p>
-                  <p className="text-sm text-gray-500">1000 IU - 1 tablet</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">After Lunch</p>
-                <p className="text-gray-500">2:00 PM</p>
-              </div>
-            </div>
-          </div>
-
-
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-lg">Upcoming Appointments</h2>
-              <a href="#" className="text-purple-600 text-sm">View All</a>
-            </div>
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg mb-2">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://randomuser.me/api/portraits/men/32.jpg"
-                  alt="Dr. John"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">Dr. John Smith</p>
-                  <p className="text-sm text-gray-500">General Checkup</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">Today, 2:30 PM</p>
-                <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded-md text-xs">Get In Touch</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://randomuser.me/api/portraits/men/41.jpg"
-                  alt="Dr. Robert"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">Dr. Md Rizwan Khan</p>
-                  <p className="text-sm text-gray-500">Follow-up</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">Tomorrow, 11:00 AM</p>
-                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-md text-xs">In Person</span>
-              </div>
-            </div>
-          </div>
-
-
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-bold text-lg">Today's Medications</h2>
-              <a href="#" className="text-purple-600 text-sm">View All</a>
-            </div>
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg mb-2">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💊</span>
-                <div>
-                  <p className="font-semibold">Amoxicillin</p>
-                  <p className="text-sm text-gray-500">500mg - 1 tablet</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">After Breakfast</p>
-                <p className="text-gray-500">8:00 AM</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">💊</span>
-                <div>
-                  <p className="font-semibold">Vitamin D3</p>
-                  <p className="text-sm text-gray-500">1000 IU - 1 tablet</p>
-                </div>
-              </div>
-              <div className="text-right text-sm">
-                <p className="text-purple-600">After Lunch</p>
-                <p className="text-gray-500">2:00 PM</p>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      
+            <p className="text-sm text-gray-700">Doctor: {patient.doctor}</p>
+            {patient.report && (
+              <p className="text-sm text-green-700 font-medium">
+                📄 Report uploaded: {patient.report.name || 'PDF'}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
-export default HealthDashboard;
+export default PatientManager;
